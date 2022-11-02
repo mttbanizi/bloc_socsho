@@ -2,9 +2,14 @@
 
 import 'dart:io';
 
+import 'package:bloc_login/model/api_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;
+// import 'package:flutter_session/flutter_session.dart';
+
+import '../../database/user_database.dart';
 
 class HomeButtonIconScreens extends StatefulWidget {
   @override
@@ -15,7 +20,10 @@ class HomeButtonIconScreens extends StatefulWidget {
 }
 
 class _HomeButtonIconScreensState extends State {
+  final dbProvider = DatabaseProvider.dbProvider;
   var posts = [];
+  String token = 'Token ';
+
   @override
   void initState() {
     super.initState();
@@ -69,7 +77,7 @@ class _HomeButtonIconScreensState extends State {
         print('snapshot:' + snapshot.hasData.toString());
         if (snapshot.hasData) {
           return ListView.builder(
-              itemCount: 10,
+              itemCount: posts.length + 1,
               itemBuilder: (BuildContext context, int index) {
                 return new Container(
                   child: (index == 0)
@@ -84,7 +92,7 @@ class _HomeButtonIconScreensState extends State {
                               new Container(
                                 height: 10,
                               ),
-                              new Text(posts[index]['body'])
+                              new Text(posts[index - 1]['body'])
                             ],
                           ),
                         ),
@@ -134,7 +142,9 @@ class _HomeButtonIconScreensState extends State {
   }
 
   _titleFriend(index) {
-    var post = posts[index];
+    print(index.toString());
+    var post = posts[index - 1];
+    print(post.toString());
     return FutureBuilder<dynamic>(
         future: getUserName(post['user']),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -203,21 +213,34 @@ class _HomeButtonIconScreensState extends State {
     // Await the http get response, then decode the json-formatted response.
     print(url);
 
-    var response = await http.get(url, headers: {
-      'Authorization': 'Token f68ddd61383cb5c223e883425f6c6a0332ab38c0'
-    });
-    // print(response.body);
-    if (response.statusCode == 200) {
-      print(200);
-      var jsonResponse = convert.jsonDecode(response.body);
-      jsonResponse.forEach((element) {
-        print(element);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    // if (!prefs.containsKey('token')) {
+    //   return false;
+    // }
+    //String token = await checkToken(0);
+    if (token != null) {
+      print('currentToken');
+      String currentToken = 'Token ' + token;
+      print(currentToken);
+      var response = await http.get(url, headers: {
+        'Authorization': currentToken
+        //'Authorization': 'Token f6e4acad2221023c52f8cd79c5aaff2377e510af'
       });
-      posts = jsonResponse as List;
-      return posts;
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-      throw Exception('Unexpected error occured!');
+      // print(response.body);
+      if (response.statusCode == 200) {
+        print(200);
+        var jsonResponse = convert.jsonDecode(response.body);
+        jsonResponse.forEach((element) {
+          print(element);
+        });
+        posts = jsonResponse as List;
+
+        return posts;
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+        throw Exception('Unexpected error occured!');
+      }
     }
   }
 
@@ -228,21 +251,32 @@ class _HomeButtonIconScreensState extends State {
     // Await the http get response, then decode the json-formatted response.
     print(url);
 
-    var response = await http.get(url, headers: {
-      'Authorization': 'Token f68ddd61383cb5c223e883425f6c6a0332ab38c0'
-    });
-    print(response);
-    // print(response.body);
-    if (response.statusCode == 200) {
-      var jsonResponse = convert.jsonDecode(response.body);
-      print(jsonResponse['full_name']);
-      return jsonResponse['full_name'];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    // if (!prefs.containsKey('token')) {
+    //   return false;
+    // }
+    //String token = await checkToken(0);
+    if (token != null) {
+      print('currentToken');
+      String currentToken = 'Token ' + token;
+      print(currentToken);
+
+      var response =
+          await http.get(url, headers: {'Authorization': currentToken});
+      print(response);
+      // print(response.body);
+      if (response.statusCode == 200) {
+        var jsonResponse = convert.jsonDecode(response.body);
+        //print(jsonResponse['full_name']);
+        return jsonResponse['full_name'];
+      }
+      throw Exception('Unexpected error occured!');
     }
-    throw Exception('Unexpected error occured!');
   }
 
   _liked_icon(int index) {
-    var post = posts[index];
+    var post = posts[index - 1];
     return FutureBuilder<dynamic>(
         future: getIsLiked(post['pk']),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -270,17 +304,45 @@ class _HomeButtonIconScreensState extends State {
     // Await the http get response, then decode the json-formatted response.
     print(url);
 
-    var response = await http.get(url, headers: {
-      'Authorization': 'Token f68ddd61383cb5c223e883425f6c6a0332ab38c0'
-    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    // if (!prefs.containsKey('token')) {
+    //   return false;
+    // }
+    //String token = await checkToken(0);
+    if (token != null) {
+      print('currentToken');
+      String currentToken = 'Token ' + token;
+      print(currentToken);
 
-    //print(response.body);
-    //print(response.statusCode);
-    if (response.statusCode == 200) {
-      var jsonResponse = convert.jsonDecode(response.body);
-      print(jsonResponse['liked']);
-      return jsonResponse['liked'];
+      var response =
+          await http.get(url, headers: {'Authorization': currentToken});
+
+      //print(response.body);
+      //print(response.statusCode);
+      if (response.statusCode == 200) {
+        var jsonResponse = convert.jsonDecode(response.body);
+        //print(jsonResponse['liked']);
+        return jsonResponse['liked'];
+      }
+      throw Exception('Unexpected error occured!');
     }
-    throw Exception('Unexpected error occured!');
+  }
+
+  Future<String> checkToken(int id) async {
+    final db = await dbProvider.database;
+    try {
+      List<Map> users =
+          await db.query(userTable, where: 'id = ?', whereArgs: [id]);
+      if (users.length > 0) {
+        print("check-token");
+        print(users.first['token']);
+        return users.length.toString();
+      } else {
+        return 'false';
+      }
+    } catch (error) {
+      return 'false';
+    }
   }
 }

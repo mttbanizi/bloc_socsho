@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_login/model/api_model.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bloc_login/repository/user_repository.dart';
 import 'package:bloc_login/model/user_model.dart';

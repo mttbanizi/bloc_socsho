@@ -70,6 +70,7 @@ class App extends StatelessWidget {
       if (users.length > 0) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('token', users.first['token']);
+        prefs.setString('username', users.first['username']);
         print("set-token");
         print(users.first['token']);
         return users.length.toString();

@@ -29,7 +29,6 @@ class _HomeButtonIconScreensState extends State {
     super.initState();
     print('initState');
     // TODO: implement initState
-    _setData();
   }
 
   @override
@@ -49,12 +48,24 @@ class _HomeButtonIconScreensState extends State {
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            new IconButton(onPressed: () {}, icon: Icon(Icons.photo_camera)),
+            new IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.photo_camera,
+                  color: Colors.amber,
+                )),
             new Text(
               'socsho',
-              style: new TextStyle(fontSize: 15),
+              style: new TextStyle(
+                fontSize: 15,
+                color: Colors.amber,
+              ),
             ),
-            new IconButton(onPressed: () {}, icon: Icon(Icons.send_sharp))
+            new IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.send_sharp),
+              color: Colors.amber,
+            )
           ],
         ),
         preferredSize: Size.fromHeight(10.0));

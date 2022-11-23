@@ -184,13 +184,35 @@ class _HomeButtonIconScreensState extends State {
   }
 
   _listImage(int index) {
+    var post = posts[index - 1];
+    String imageUrl = 'http://10.0.2.2:8000' + post['image'];
+    print(imageUrl);
+    // print(post.toString());
+    // return FutureBuilder<dynamic>(
+    //     future: getUserName(post['user']),
+    //     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+    //       if (snapshot.hasData) {
+    //         print('user_snapshot.data');
+    //         print(snapshot.data);
     return new Container(
-      child: new Image.asset(
-        'assets/images/friend_acc.png',
+      child: new Image.network(
+        imageUrl,
         height: 300,
         fit: BoxFit.cover,
+        errorBuilder:
+            (BuildContext context, Object exception, StackTrace stackTrace) {
+          print('error image');
+          return Image.asset(
+            "assets/images/friend_acc.png",
+            height: 300,
+            fit: BoxFit.cover,
+          );
+        },
       ),
     );
+    //   }
+    //   return Container(child: CircularProgressIndicator());
+    // });
   }
 
   _listBottom(int index) {

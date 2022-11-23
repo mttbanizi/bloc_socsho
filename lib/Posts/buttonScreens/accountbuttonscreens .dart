@@ -19,12 +19,10 @@ class AccountButtonIconScreens extends StatefulWidget {
 }
 
 class _AccountButtonIconScreensState extends State {
-  var MyProfile = [];
   String token = 'Token ';
 
   @override
   void initState() {
-    getMyProfile();
     super.initState();
   }
 
@@ -43,9 +41,15 @@ class _AccountButtonIconScreensState extends State {
   _body() {
     return Container(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
+          Container(
+              child: Column(
+            children: [
+              userActivity(),
+            ],
+          )),
           Padding(
             padding: EdgeInsets.only(left: 30.0),
             child: Text(
@@ -132,23 +136,124 @@ class _AccountButtonIconScreensState extends State {
     String token = prefs.getString('token');
 
     if (token != null) {
-      print('profileToken');
       String currentToken = 'Token ' + token;
-      print(currentToken);
 
       var response =
           await http.get(url, headers: {'Authorization': currentToken});
 
-      print(response.body);
       if (response.statusCode == 200) {
+        print(response.statusCode);
         var jsonResponse = convert.jsonDecode(response.body);
-        jsonResponse.forEach((element) {
-          print(element);
-        });
-        MyProfile = jsonResponse as List;
+        // jsonResponse.forEach((element) {
+        //   print(element);
+        // });
+        // MyProfile = jsonResponse as List;
+        print(jsonResponse);
         return jsonResponse;
       }
       throw Exception('Unexpected error occured!');
     }
+  }
+
+  userActivity() {
+    return Container(
+        height: 250,
+        child: FutureBuilder<dynamic>(
+            future: getMyProfile(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasData) {
+                print('profile_snapshot.hasData');
+                print(snapshot.hasData);
+                return Container(
+                    height: 200,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                                height: 90,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      snapshot.data['post_count'].toString(),
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    ),
+                                    Text(
+                                      "Posts",
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    ),
+                                  ],
+                                )),
+                            Container(
+                                height: 90,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      snapshot.data['follower_count']
+                                          .toString(),
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    ),
+                                    Text(
+                                      'Follower',
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    ),
+                                  ],
+                                )),
+                            Container(
+                                height: 90,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      snapshot.data['following_count']
+                                          .toString(),
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    ),
+                                    Text(
+                                      'Following',
+                                      style: TextStyle(
+                                          color: Colors.yellow, fontSize: 23),
+                                    )
+                                  ],
+                                ))
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text('Status:  '),
+                            Text(
+                              snapshot.data['status'].toString(),
+                              style:
+                                  TextStyle(color: Colors.yellow, fontSize: 23),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text('biography:  '),
+                            Text(
+                              snapshot.data['bio'].toString(),
+                              style:
+                                  TextStyle(color: Colors.yellow, fontSize: 23),
+                            )
+                          ],
+                        )
+                      ],
+                    ));
+              }
+              return Container(child: CircularProgressIndicator());
+            }));
   }
 }

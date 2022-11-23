@@ -156,31 +156,27 @@ class _HomeButtonIconScreensState extends State {
     print(index.toString());
     var post = posts[index - 1];
     print(post.toString());
-    return FutureBuilder<dynamic>(
-        future: getUserName(post['user']),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if (snapshot.hasData) {
-            print('user_snapshot.data');
-            print(snapshot.data);
-            return Container(
-              margin: EdgeInsets.all(8),
-              child: new Row(
-                children: [
-                  new Image.asset(
-                    'assets/images/friend_acc.png',
-                    height: 40,
-                  ),
-                  new Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: new Text(' ' + snapshot.data.toString()),
-                  )
-                ],
-              ),
-            );
-          }
-
-          return Container(child: CircularProgressIndicator());
-        });
+    List lnt = post['user_fields']['user_photo'];
+    int length = lnt.length;
+    print(length.toString());
+    String imageUrl = 'http://10.0.2.2:8000' +
+        post['user_fields']['user_photo'][length - 1]['image'];
+    print(imageUrl);
+    return Container(
+      margin: EdgeInsets.all(8),
+      child: new Row(
+        children: [
+          new Image.network(
+            imageUrl,
+            height: 40,
+          ),
+          new Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: new Text(' ' + post['user_fields']['full_name'].toString()),
+          )
+        ],
+      ),
+    );
   }
 
   _listImage(int index) {
